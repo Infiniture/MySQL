@@ -220,3 +220,131 @@ REFERENCES class (id);
 
 - 投影查询同样可以接WHERE条件，实现复杂的查询。
 
+### 排序
+
+- 当我们使用SELECT查询时，查询结果集通常是按照`id`排序的，也就是根据主键排序。当我们需要根据其它条件排序时，可以加上`ORDER BY`子句。 
+
+- 默认是采用**升序(ASC)**，可以加上`DESC`表示**倒序**。
+
+  ```sql
+  -- 按score从高到低
+  SELECT id, name, gender, score FROM students ORDER BY score DESC;
+  ```
+
+  
+
+- **如果有`WHERE`子句，那么`ORDER BY`子句要放到`WHERE`子句后面。**
+
+### 分页查询
+
+- 分页实际上就是从结果集中“截取”出第M~N条记录。这个查询可以通过`LIMIT <M> OFFSET <N>`子句实现。
+- 首先需要确定每页需要显示的结果数量`pageSize`，然后根据当前页的索引`pageIndex`(从1开始)，确定`LIMIT`和`OFFSET`应该设定的值。
+  - `LIMIT`总是设定为`pageSize`;
+  - `OFFSET`计算公式为`pageSize * (pageIndex - 1)`。
+  - `OFFSET`超过了查询的最大数量并不会报错，而是得到一个空的结果集。
+
+- 注意：
+  - `OFFSET`是可选的，如果只写`LIMIT 15`，那么相当于`LIMIT 15 OFFSET 0`;
+  - 在MySQL中，`LIMIT 15 OFFSET 30`还可以简写成`LIMIT 30, 15`。
+  - 使用`LIMIT <M> OFFSET <N>`分页时，随着`N`的越来越大，查询效率也会越来越低。
+
+### 聚合查询
+
+- 查询`students`表一共有多少条记录为例，可以使用SQL内置的`COUNT()`函数查询
+
+  ```sql
+  SELECT COUNT(*) FROM students;
+  ```
+
+  - count(*) 表示查询所有列的行数； 
+
+  - 通常，使用聚合查询时，我们应该给列设置一个别名，便于处理结果
+
+    ```sql
+    SELECT COUNT(*) NUM FROM students;
+    ```
+
+  - 聚合查询同样可以使用`WHERE`条件；
+
+- SQL还提供了如下聚合函数：
+
+  | 函数 |                  说明                  |
+  | :--: | :------------------------------------: |
+  | SUM  | 计算某一列的合计值，该列必须为数值类型 |
+  | AVG  | 计算某一列的平均值，该列必须为数值类型 |
+  | MAX  |           计算某一列的最大值           |
+  | MIN  |           计算某一列的最小值           |
+
+  **注意：`MAX()`和`MIN()`函数并不限于数值类型。如果是字符类型，`MAX()`和`MIN()`会返回排序最后和排序最前的字符。**
+
+- 如果聚合查询的`WHERE`条件没有匹配到任何行，`COUNT()`会返回0，而`SUM()`、`AVG()`、`MAX()`和`MIN()`会返回`NULL`;
+
+- 每页3条记录，如何通过聚合查询获得总页数？
+
+  ```sql
+  SELECT CEILING(COUNT(*)/3) FROM students;
+  ```
+
+#### 分组聚合
+
+- 执行这个查询，`COUNT()`的结果不再是一个，而是三个，因为`GROUP BY`子句指定了按`class_id`分组，因此，执行该`SELECT`语句时，会把`class_id`相同的列先分组，再分别计算，因此，得到了3行结果。
+
+  ```sql
+  -- 按class_id分组：
+  SELECT class_id, COUNT(*) num FROM students GROUP BY class_id;
+  ```
+
+- 也可以使用多个列进行分组。例如，我们想统计各班的男生和女生人数
+
+  ```sql
+  SELECT class_id, gender, COUNT(*) num FROM students GROUP BY class_id, gender; 
+  ```
+
+### 多表查询
+
+- `SELECT`查询不但可以从一张表擦汗寻数据，还可以从多张表同时查询数据。查询多张表的语法是：`SELECT * FROM <表1> <表2>`。
+- 多表查询时，要使用`表明.列名`这样的方式来印用列和设置别名，这样就避免了结果集的列名重复问题。
+- 使用多表查询可以获取M x N行记录，多表查询的结果集可能非常巨大，要小心使用。
+
+### 连接查询
+
+- 先确定一个主表作为结果集，然后，把其它表的行有选择性地“连接”在主表结果集上。
+
+- 举例`INNER JOIN`的写法：
+
+  ```sql
+  SELECT S.id, s.name, s.class_id, c.name class_name, s.gender, s.score
+  FROM students s
+  INNER JOIN classes c
+  ON s.class_id = c.id;
+  ```
+
+  1. 先确定主表，仍然使用`FROM <表1>`的语法；
+  2. 再确定需要连接的表，使用`INNER JOIN <表2>的语法`；
+  3. 然后确定连接条件，使用`ON <条件...>`，这里的条件是`s.class_id = c.id`，表示`students`表的`class_id`列与`classes`表的`id`列相同的行需要连接；
+  4. 可选：加上`WHERE`子句，`ORDER BY` 等子句。
+
+- 多种**JOIN**查询
+
+  ```sql
+  SELECT...FROM tableA ??? JOIN tableB ON tableA.column1 = tableB.column2;
+  ```
+
+  - 我们把tableA看作左表，把tableB看成右表，那么INNER JOIN是选出两张表都存在的记录：
+
+  ![pic](./pic/innerJoin.png)
+
+  - LEFT OUTER JOIN是选出左表存在的记录：
+
+    ![pic](./pic/leftOuterJoin.png)
+
+  - RIGHT OUTER JOIN是选出右表存在的记录：
+
+    ![pic](./pic/rightOuterJoin.png)
+
+  - FULL OUTER JOIN则是选出左右表都存在的记录：
+
+    ![pic](./pic/fullOuterJoin.png)
+
+- JOIN查询仍然可以使用`WHERE`条件和`ORDER BY`排序；
+
