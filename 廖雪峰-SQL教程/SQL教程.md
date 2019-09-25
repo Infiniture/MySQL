@@ -65,3 +65,21 @@
   - 2000: NoSQL = No SQL!
   - 2005: NoSQL = Not only SQL
   - 2013: NoSQL = No, SQL!
+
+- 安装MySQL
+
+  > MySQL本身实际上只是一个SQL接口，它的内部还包含了多种数据引擎，常用的包括：
+  >
+  > - InnoDB：由Innobase Oy公司开发的一款支持事务的数据库引擎，2006年被Oracle收购；
+  > - MyISAM：MySQL早期继承的默认数据库引擎，不支持事务。
+
+  > 使用MySQL时，不同的表还可以使用不同的数据库引擎。如果你不知道应该采用哪种引擎，记住总是选择**InnoDB**就好了。
+
+- 运行MySQL
+
+  > 在命令提示符下输入`mysql -u root -p`，然后输入口令，如果一切正常，就会连接到MySQL服务器，同时提示符变为`mysql>`，输入`exit`退出MySQL命令行。注意，MySQL服务器仍在后台运行。
+
+
+
+## 关系模型
+
