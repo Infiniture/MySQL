@@ -416,4 +416,117 @@ REFERENCES class (id);
 
 ## MySQL
 
-> 安装完MySQL后
+> 安装完MySQL后，除了MySQL Server，即真正的MySQL服务器外，还附赠一个MySQL Client程序。MySQL Client是一个命令行客户端，可以通过MySQL Client登录MySQL，然后输入SQL语句并执行。
+
+- 打开命令提示符，输入命令`mysql -u root -p`，提示输入口令。填入MySQL的root口令，如果正确，就连上了MySQL Server，同时提示符变为`mysql`:
+
+- 输入`exit`断开与MySQL Server的连接并返回到命令提示符。
+
+- MySQL Client的可执行程序是mysql, MySQL Server的可执行程序是mysqld。
+
+- MySQL Client和MySQL Server的关系如下：
+	
+	![pic](./pic/mysql.jpg)
+  
+	- 在MySQL Client中输入的SQL语句通过TCP连接发送到MySQL Server。默认端口号是3306，即如果发送到本机MySQL Server，地址就是`127.0.0.1：3306`。
+  
+  - 也可以只安装MySQL Client，然后连接到远程MySQL Server。假设远程MySQL Server的IP地址是`10.0.1.99`，那么就使用`-h`指定IP或域名：
+  
+    ```sql
+    mysql -h 10.0.1.99 -u root -p
+    ```
+
+- 命令行程序`mysql`实际上是MySQL客户端，真正的MySQL服务器程序是`mysqld`，在后台运行。
+
+### 管理MySQL
+
+- MySQL Workbench可以用可视化的方式查询、创建和修改数据库表。
+- 本质上，MySQL Workbench和MySQL Client命令行都是客户端，和MySQL交互，唯一的接口就是SQL。
+
+#### 数据库
+
+- 在一个运行MySQL的服务器上，实际上可以创建多个数据库（Datebase）。要列出所有数据库，使用命令：
+
+  ```sql
+  SHOW DATABASES;
+  ```
+
+  其中，`information_schema`、`mysql`、`performance_schema`和`sys`是系统库，不要去改动它们。其它的是用户创建的数据库。
+
+- 创建一个新数据库，使用命令：
+
+  ```sql
+  CREATE DATABASE test;
+  ```
+
+- 删除一个数据库，使用命令：
+
+  ```sql
+  DROP DATEBASE test;
+  ```
+
+  **注意：删除一个数据库将导致该数据库的所有表全部被删除。**
+
+- 对一个数据库进行操作时，要首先将其切换为当前数据库：
+
+  ```sql
+  USE test;
+  ```
+
+#### 表
+
+- 列出当前数据库的所有表，使用命令：
+
+  ```sql
+  SHOW TABLES;
+  ```
+
+- 要查看一个表的结构，使用命令：
+
+  ```sql
+  DESC students;
+  ```
+
+- 还可以使用以下命令查看创建表的SQL语句：
+
+  ```sql
+  SHOW CREATE TABLE students;
+  ```
+
+- 创建表使用`CREATE TABLE`语句，而删除表使用`DROP TABLE`语句：
+
+  ```sql
+  DROP TABLE students;
+  ```
+
+- 如果要给`students`表新增一列`birth`，使用：
+
+  ```sql
+  ALTER TABLE students ADD COLUMN birth VARCHAR(10) NOT NULL;
+  ```
+
+- 要修改`birth`列，例如把列名改为`birthday`，类型改为`VARCHAR(20)`;
+
+  ```sql
+  ALTER TABLE students CHANGE COLUMN birth birthday VARCHAR(20) NOT NULL;
+  ```
+
+- 要删除列，使用：
+
+  ```sql
+  ALTER TABLE students DROP COLUMN birthday;
+  ```
+
+#### 退出MySQL
+
+- 使用`Exit`命令退出MySQL
+
+  ```sql
+  EXIT
+  ```
+
+  **注意`EXIT`仅仅断开了客户端和服务器的连接，MySQL服务器仍然继续运行。**
+
+## 事务
+
+> 在执行SQL语句的时候，某些业务要求，一系列操作必须全部执行，而不能仅执行一部分。
