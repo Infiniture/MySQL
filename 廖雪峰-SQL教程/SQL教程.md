@@ -348,3 +348,72 @@ REFERENCES class (id);
 
 - JOIN查询仍然可以使用`WHERE`条件和`ORDER BY`排序；
 
+## 修改数据
+
+> 关系数据库的基本操作就是增删改查，即CRUD：Create、Retrieve、Update、Delete。
+
+### INSERT
+
+- `INSERT`语句的基本语法是：
+
+  ```sql
+  INSERT INTO <表名> (字段1, 字段2, ...) VALUES (值1, 值2, ...);
+  ```
+
+- 无需列出`id`字段，因为`id`字段是一个自增主键，它的值可以由数据库自己推算出来。
+
+- 字段顺序不必和数据库表的顺序一致，但值的顺序必须和字段顺序一致。
+
+- 可以一次性添加多条记录，只需要再`VALUES`子句中指定多个记录值，每个记录是由`(...)`包含的一组值：
+
+  ```sql
+  -- 一次性添加多条新记录
+  INSERT INTO students (class_id, name, gender, score) VALUES
+  	(1, '大宝', 'M', 87),
+  	(2, '二宝', 'M', 81);
+  ```
+
+### UPDATE
+
+- `UPDATE`语句的基本语法是：
+
+  ```sql
+  UPDATE <表名> SET 字段1 = 值1, 字段2 = 值2, ... WHERE ...;
+  ```
+
+- `UPDATE`语句的`WHERE`条件和`SELECT`语句的`WHERE`条件其实是一样的，可以一次更新多条记录；
+
+- 在`UPDATE`语句中，更新字段时可以使用表达式：
+
+  ```sql
+  -- 更新score<80的记录
+  UPDATE students SET score = score + 10 WHERE score < 80;
+  -- 查询并观察结果
+  SELECT * FROM students;
+  ```
+
+- 如果`WHERE`条件没有匹配到任何记录，`UPDATE`语句不会报错，也不会有任何记录被更新。
+
+- `UPDATE`语句可以没有`WHERE`条件：
+
+  ```sql
+  UPDATE students SET score = 60;
+  ```
+
+  这时，整个表的所有记录都会被更新。所以，在执行`UPDATE`语句时要非常小心，最好先用`SELECT`语句来测试`WHERE`条件是否筛选出了期望的记录集，然后再用`UPDATE`更新。
+
+### DELETE
+
+- `DELETE`语句的基本语法是：
+
+  ```sql
+  DELETE FROM <表名> WHERE ...;
+  ```
+
+- `DELETE`语句可以一次删除多条记录；
+- 如果`WHERE`条件没有匹配到任何记录，`DELETE`语句不会报错，也不会有任何记录被删除。
+- **和`UPDATE`类似，不带`WHERE`条件的`DELETE`语句会删除整个表的数据。**
+
+## MySQL
+
+> 安装完MySQL后
